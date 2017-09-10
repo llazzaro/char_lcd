@@ -20,10 +20,10 @@
 # THE SOFTWARE.
 import time
 
-import Adafruit_GPIO as GPIO
-import Adafruit_GPIO.I2C as I2C
-import Adafruit_GPIO.MCP230xx as MCP
-import Adafruit_GPIO.PWM as PWM
+import pygpio as GPIO
+import pygpio.I2C as I2C
+import pygpio.MCP230xx as MCP
+import pygpio.PWM as PWM
 
 
 # Commands
@@ -86,7 +86,8 @@ DOWN                    = 2
 UP                      = 3
 LEFT                    = 4
 
-class Adafruit_CharLCD(object):
+
+class CharLCD(object):
     """Class to represent and interact with an HD44780 character LCD display."""
 
     def __init__(self, rs, en, d4, d5, d6, d7, cols, lines, backlight=None,
@@ -99,21 +100,21 @@ class Adafruit_CharLCD(object):
         connected to the LCD RS, clock enable, and data line 4 through 7 connections.
         The LCD will be used in its 4-bit mode so these 6 lines are the only ones
         required to use the LCD.  You must also pass in the number of columns and
-        lines on the LCD.  
+        lines on the LCD.
 
         If you would like to control the backlight, pass in the pin connected to
         the backlight with the backlight parameter.  The invert_polarity boolean
-        controls if the backlight is one with a LOW signal or HIGH signal.  The 
+        controls if the backlight is one with a LOW signal or HIGH signal.  The
         default invert_polarity value is True, i.e. the backlight is on with a
-        LOW signal.  
+        LOW signal.
 
-        You can enable PWM of the backlight pin to have finer control on the 
-        brightness.  To enable PWM make sure your hardware supports PWM on the 
+        You can enable PWM of the backlight pin to have finer control on the
+        brightness.  To enable PWM make sure your hardware supports PWM on the
         provided backlight pin and set enable_pwm to True (the default is False).
         The appropriate PWM library will be used depending on the platform, but
         you can provide an explicit one with the pwm parameter.
 
-        The initial state of the backlight is ON, but you can set it to an 
+        The initial state of the backlight is ON, but you can set it to an
         explicit initial state with the initial_backlight parameter (0 is off,
         1 is on/full bright).
 
@@ -317,19 +318,19 @@ class Adafruit_CharLCD(object):
         return intensity
 
 
-class Adafruit_RGBCharLCD(Adafruit_CharLCD):
+class RGBCharLCD(CharLCD):
     """Class to represent and interact with an HD44780 character LCD display with
     an RGB backlight."""
 
     def __init__(self, rs, en, d4, d5, d6, d7, cols, lines, red, green, blue,
-                 gpio=GPIO.get_platform_gpio(), 
+                 gpio=GPIO.get_platform_gpio(),
                  invert_polarity=True,
                  enable_pwm=False,
                  pwm=PWM.get_platform_pwm(),
                  initial_color=(1.0, 1.0, 1.0)):
-        """Initialize the LCD with RGB backlight.  RS, EN, and D4...D7 parameters 
-        should be the pins connected to the LCD RS, clock enable, and data line 
-        4 through 7 connections. The LCD will be used in its 4-bit mode so these 
+        """Initialize the LCD with RGB backlight.  RS, EN, and D4...D7 parameters
+        should be the pins connected to the LCD RS, clock enable, and data line
+        4 through 7 connections. The LCD will be used in its 4-bit mode so these
         6 lines are the only ones required to use the LCD.  You must also pass in
         the number of columns and lines on the LCD.
 
@@ -350,11 +351,11 @@ class Adafruit_RGBCharLCD(Adafruit_CharLCD):
         """
         super(Adafruit_RGBCharLCD, self).__init__(rs, en, d4, d5, d6, d7,
                                                   cols,
-                                                  lines, 
+                                                  lines,
                                                   enable_pwm=enable_pwm,
                                                   backlight=None,
                                                   invert_polarity=invert_polarity,
-                                                  gpio=gpio, 
+                                                  gpio=gpio,
                                                   pwm=pwm)
         self._red = red
         self._green = green
@@ -379,7 +380,7 @@ class Adafruit_RGBCharLCD(Adafruit_CharLCD):
         red = max(0.0, min(1.0, red))
         green = max(0.0, min(1.0, green))
         blue = max(0.0, min(1.0, blue))
-        return (self._pwm_duty_cycle(red), 
+        return (self._pwm_duty_cycle(red),
                 self._pwm_duty_cycle(green),
                 self._pwm_duty_cycle(blue))
 
@@ -417,8 +418,7 @@ class Adafruit_RGBCharLCD(Adafruit_CharLCD):
         self.set_color(backlight, backlight, backlight)
 
 
-
-class Adafruit_CharLCDPlate(Adafruit_RGBCharLCD):
+class CharLCDPlate(RGBCharLCD):
     """Class to represent and interact with an Adafruit Raspberry Pi character
     LCD plate."""
 
@@ -440,7 +440,7 @@ class Adafruit_CharLCDPlate(Adafruit_RGBCharLCD):
         # Initialize LCD (with no PWM support).
         super(Adafruit_CharLCDPlate, self).__init__(LCD_PLATE_RS, LCD_PLATE_EN,
             LCD_PLATE_D4, LCD_PLATE_D5, LCD_PLATE_D6, LCD_PLATE_D7, cols, lines,
-            LCD_PLATE_RED, LCD_PLATE_GREEN, LCD_PLATE_BLUE, enable_pwm=False, 
+            LCD_PLATE_RED, LCD_PLATE_GREEN, LCD_PLATE_BLUE, enable_pwm=False,
             gpio=self._mcp)
 
     def is_pressed(self, button):
